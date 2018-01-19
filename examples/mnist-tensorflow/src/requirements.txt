@@ -1,0 +1,4 @@
+kogu
+numpy
+sklearn
+tensorflow
