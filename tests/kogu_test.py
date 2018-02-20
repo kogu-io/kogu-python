@@ -66,6 +66,14 @@ class KoguTests(unittest.TestCase):
         self._assert_warn(stdout.getvalue())
         self._clean(stdout)
 
+    def test_comment_numeric(self):
+        sys.stdout = stdout = StringIO()
+        Kogu.comment(123)
+        self._assert_line_format("#COMMENT", stdout.getvalue())
+        self.assertTrue("123" in stdout.getvalue(),
+                        "Got '%s'" % stdout.getvalue())
+        self._clean(stdout)
+
     def test_name(self):
         sys.stdout = stdout = StringIO()
         name = "nEw (nAme)!"

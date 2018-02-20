@@ -125,6 +125,7 @@ class Kogu(object):
                 raise KoguException('comment must be passed')
 
             # strip all line breaks
+            comment = '{}'.format(comment)
             comment = comment.replace('\n', ' ').replace('\r', '')
 
             cls._command("COMMENT", comment)
