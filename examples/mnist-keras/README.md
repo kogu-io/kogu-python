@@ -7,7 +7,7 @@ Each epoch accuracy is logged to kogu with custom Keras callback.
 ## Instructions
 
 * Make sure you have dependencies installed:  
-  `pip install -r src/requirements.txt`  
+  `pip install -r requirements.txt`  
 
 * Run experiments (add [execution options](https://kogu.io/docs/cli.html) to taste):  
   `kogu run src/mnist-keras.py`  

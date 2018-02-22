@@ -20,7 +20,7 @@ Kogu.update_parameters({
 Kogu.plot(plot_type="line", y_label="training, validation", series=["training", "validation"], name="Accuracy")
 
 # Download the data
-mnist = input_data.read_data_sets("../data/MNIST/", reshape=False)
+mnist = input_data.read_data_sets("./data/MNIST/", reshape=False)
 X_train, y_train           = mnist.train.images, mnist.train.labels
 X_validation, y_validation = mnist.validation.images, mnist.validation.labels
 X_test, y_test             = mnist.test.images, mnist.test.labels
@@ -135,7 +135,7 @@ with tf.Session() as sess:
         "accuracy": validation_accuracy,
     })
 
-    model_path = '../models/lenet'
+    model_path = './models/lenet'
     saver.save(sess, model_path)
 
     files = glob.glob(model_path + "*")

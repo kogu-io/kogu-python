@@ -6,7 +6,7 @@ It trivially calculates sine and cosine function values, and reports them to kog
 ## Instructions
 
 * Make sure you have dependencies installed:  
-  `pip install -r src/requirements.txt` 
+  `pip install -r requirements.txt` 
 
 * Run experiments (add [execution options](https://kogu.io/docs/cli.html) to taste):  
   `kogu run src/sincos.py`  

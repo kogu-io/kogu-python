@@ -45,7 +45,7 @@ classifier = svm.SVC(gamma=gamma, tol=tol)
 classifier.fit(data[:n_samples // 2], digits.target[:n_samples // 2])
 
 # We save and upload trained model
-model_fname = "../models/svm_model.pkl"
+model_fname = "./models/svm_model.pkl"
 with open(model_fname, 'wb') as f:
     pickle.dump(classifier, f)
 Kogu.upload(model_fname)
@@ -65,7 +65,7 @@ for index, (image, prediction) in enumerate(images_and_predictions[:4]):
     plt.axis('off')
     plt.imshow(image, cmap=plt.cm.gray_r, interpolation='nearest')
     plt.title('Prediction: %i' % prediction)
-img_fname = "../reports/figures/prediction_samples.png"
+img_fname = "./reports/figures/prediction_samples.png"
 plt.savefig(img_fname)
 Kogu.upload(img_fname)
 

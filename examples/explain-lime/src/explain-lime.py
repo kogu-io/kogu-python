@@ -46,7 +46,7 @@ print('Document id: %d' % idx)
 print('Probability(christian) =', c.predict_proba([newsgroups_test.data[idx]])[0,1])
 print('True class: %s' % class_names[newsgroups_test.target[idx]])
 
-exp_path = '../reports/figures/exp.png'
+exp_path = './reports/figures/exp.png'
 fig = exp.as_pyplot_figure()
 fig.savefig(exp_path)
 Kogu.upload(exp_path)
