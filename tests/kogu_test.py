@@ -11,6 +11,7 @@ try:
 except ImportError:
     from io import StringIO
 
+import io
 class KoguTests(unittest.TestCase):
 
     def setUp(self):
@@ -346,10 +347,19 @@ class KoguTests(unittest.TestCase):
 
     def test_load_parameters(self):
         params = '{"epochs":30}'
-        sys.stdin = StringIO(params)
+
+        path = os.path.join(tempfile.mkdtemp(), 'pipe')
+        os.mkfifo(path)
+        fd = os.open(path, os.O_RDWR|os.O_NONBLOCK)
+        os.write(fd, params.encode())
+
+        sys.stdin = stdin = io.open(fd, mode="rt")
         sys.stdout = stdout = StringIO()
         Kogu.load_parameters()
+
         self.assertEqual(epochs, 30)
+        stdin.close()
+        os.unlink(path)
         self._clean(stdout)
 
     def _parameters_file_name(self):
@@ -376,7 +386,13 @@ class KoguTests(unittest.TestCase):
             json_file.writelines(u'{"epochs":50,"spaces":25}')
 
         params = '{"epochs":10,"spaces": 22,"third":3}'
-        sys.stdin = StringIO(params)
+
+        path = os.path.join(tempfile.mkdtemp(), 'pipe')
+        os.mkfifo(path)
+        fd = os.open(path, os.O_RDWR|os.O_NONBLOCK)
+        os.write(fd, params.encode())
+
+        sys.stdin = stdin = io.open(fd, mode="rt")
         sys.stdout = stdout = StringIO()
 
         Kogu.load_parameters()
@@ -390,6 +406,8 @@ class KoguTests(unittest.TestCase):
         self.assertRegexpMatches(stdout.getvalue(), r".*spaces=22.*")
         self.assertRegexpMatches(stdout.getvalue(), r".*third=.*")
 
+        stdin.close()
+        os.unlink(path)
         self._clean(stdout)
 
     def test_load_parameters_file_invalid(self):

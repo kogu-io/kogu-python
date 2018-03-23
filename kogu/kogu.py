@@ -5,6 +5,7 @@ import sys
 import json
 import re
 import inspect
+from stat import S_ISFIFO
 
 class KoguException(Exception):
     """
@@ -49,8 +50,8 @@ class Kogu(object):
         except ValueError as err:
             raise KoguException('parameters.json cannot be parsed: ' + str(err))
 
-        # load parameters from json string from standard input (in case stdin is not TTY)
-        if not sys.stdin.isatty():
+        # load parameters from json string from standard input (in case stdin a fifo (named-pipe))
+        if S_ISFIFO(os.stat(sys.stdin.fileno()).st_mode):
             try:
                 stdin = ''.join(sys.stdin.readlines())
                 content = json.loads(stdin)
