@@ -51,7 +51,7 @@ class Kogu(object):
             raise KoguException('parameters.json cannot be parsed: ' + str(err))
 
         # load parameters from json string from standard input (in case stdin a fifo (named-pipe))
-        if S_ISFIFO(os.stat(sys.stdin.fileno()).st_mode):
+        if S_ISFIFO(os.fstat(sys.stdin.fileno()).st_mode):
             try:
                 stdin = ''.join(sys.stdin.readlines())
                 content = json.loads(stdin)
