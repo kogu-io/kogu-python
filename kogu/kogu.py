@@ -84,7 +84,7 @@ class Kogu(object):
         """
         try:
             d = cls._validate_dict(dic)            
-            cls._json_dumps({"type":"parameters", "data":d})
+            cls._json_dumps({"parameters": d})
 
         except KoguException as ex:
             cls._warn(ex)
@@ -116,7 +116,7 @@ class Kogu(object):
             d = cls._validate_dict(dic)
 
             if len(d) > 0:
-                cls._json_dumps({"type":"metric", "data":{"iteration":iteration, "metrics":d}})
+                cls._json_dumps({"metric": {"iteration": iteration, "metrics": d}})
 
         except KoguException as ex:
             cls._warn(ex)
@@ -138,7 +138,7 @@ class Kogu(object):
             comment = '{}'.format(comment)
             comment = comment.replace('\n', ' ').replace('\r', '')
 
-            cls._json_dumps({"type":"comment", "data":comment})
+            cls._json_dumps({"comment": comment})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -154,7 +154,7 @@ class Kogu(object):
             if not name:
                 raise KoguException('name must be passed')
 
-            cls._json_dumps({"type": "name", "data": name})
+            cls._json_dumps({"name": name})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -170,7 +170,7 @@ class Kogu(object):
             if not tag:
                 raise KoguException('tag must be passed')
 
-            cls._json_dumps({"type":"tag", "data":tag})
+            cls._json_dumps({"tag": tag})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -186,7 +186,7 @@ class Kogu(object):
             if not tag:
                 raise KoguException('tag must be passed')
 
-            cls._json_dumps({"type":"untag", "data":tag})
+            cls._json_dumps({"untag": tag})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -202,7 +202,7 @@ class Kogu(object):
         """
         try:
             cls._check_file(filename, should_exist=False)
-            cls._json_dumps({"type": "upload", "data": filename})
+            cls._json_dumps({"upload": filename})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -232,8 +232,7 @@ class Kogu(object):
                 y_label = "Y"
 
             cls._json_dumps({
-                "type": "plot", 
-                "data": {
+                "plot": {
                     "type": plot_type, 
                     "name": name, 
                     "y_label": y_label, 
@@ -252,7 +251,8 @@ class Kogu(object):
         * **reason** - Optional text to use as a failure reason.
         """
         try:
-            cls._json_dumps({"type": "fail", "data": reason})
+            reason = "" if reason is None else reason
+            cls._json_dumps({"fail": reason})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -266,8 +266,9 @@ class Kogu(object):
         return j
 
     @classmethod
-    def _json_dumps(cls, obj):
-        cls._print("{}", json.dumps(cls._cleanupjson(obj)))
+    def _json_dumps(cls, obj, cleanup=True):
+        o = cls._cleanupjson(obj) if cleanup else obj
+        cls._print("{}", json.dumps(o))
     
     @classmethod
     def _warn(cls, ex):

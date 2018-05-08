@@ -47,16 +47,14 @@ class KoguTests(unittest.TestCase):
         sys.stdout = stdout = StringIO()
         Kogu.comment("This is comment")
         k = json.loads(stdout.getvalue())
-        self.assertEquals("comment", k["type"])
-        self.assertEquals("This is comment", k["data"])
+        self.assertEquals("This is comment", k["comment"])
         self._clean(stdout)
 
     def test_comment_linebreaks(self):
         sys.stdout = stdout = StringIO()
         Kogu.comment("This\r\nis\ncomment\r")
         k = json.loads(stdout.getvalue())
-        self.assertEquals("comment", k["type"])
-        self.assertEquals("This is comment", k["data"])
+        self.assertEquals("This is comment", k["comment"])
         self._clean(stdout)
 
     def test_comment_empty(self):
@@ -69,8 +67,7 @@ class KoguTests(unittest.TestCase):
         sys.stdout = stdout = StringIO()
         Kogu.comment(123)
         k = json.loads(stdout.getvalue())
-        self.assertEquals("comment", k["type"])
-        self.assertEquals("123", k["data"])        
+        self.assertEquals("123", k["comment"])        
         self._clean(stdout)
 
     def test_name(self):
@@ -78,8 +75,7 @@ class KoguTests(unittest.TestCase):
         name = "nEw (nAme)!"
         Kogu.name(name)
         k = json.loads(stdout.getvalue())
-        self.assertEquals("name", k["type"])
-        self.assertEquals(name, k["data"])
+        self.assertEquals(name, k["name"])
         self._clean(stdout)
 
     def test_name_empty(self):
@@ -93,8 +89,7 @@ class KoguTests(unittest.TestCase):
         tag = "nEw (tAg)!"
         Kogu.tag(tag)
         k = json.loads(stdout.getvalue())
-        self.assertEquals("tag", k["type"])
-        self.assertEquals(tag, k["data"])
+        self.assertEquals(tag, k["tag"])
         self._clean(stdout)
 
     def test_tag_empty(self):
@@ -108,8 +103,7 @@ class KoguTests(unittest.TestCase):
         tag = "nEw (tAg)!"
         Kogu.untag(tag)
         k = json.loads(stdout.getvalue())
-        self.assertEquals("untag", k["type"])
-        self.assertEquals(tag, k["data"])
+        self.assertEquals(tag, k["untag"])
         self._clean(stdout)
 
     def test_untag_empty(self):
@@ -122,44 +116,39 @@ class KoguTests(unittest.TestCase):
         sys.stdout = stdout = StringIO()
         Kogu.plot("line", "x")
         k = json.loads(stdout.getvalue())
-        self.assertEquals("plot", k["type"])
-        self.assertEquals("line", k["data"]["type"])
-        self.assertIn("x", k["data"]["metrics"])
+        self.assertEquals("line", k["plot"]["type"])
+        self.assertIn("x", k["plot"]["metrics"])
         self._clean(stdout)
 
     def test_plot_series_array(self):
         sys.stdout = stdout = StringIO()
         Kogu.plot("line", ["x", "y"])
         k = json.loads(stdout.getvalue())
-        self.assertEquals("plot", k["type"])
-        self.assertIn("x", k["data"]["metrics"])
-        self.assertIn("y", k["data"]["metrics"])
+        self.assertIn("x", k["plot"]["metrics"])
+        self.assertIn("y", k["plot"]["metrics"])
         self._clean(stdout)
 
     def test_plot_series_array_single(self):
         sys.stdout = stdout = StringIO()
         Kogu.plot("line", ["x"])
         k = json.loads(stdout.getvalue())
-        self.assertEquals("plot", k["type"])
-        self.assertIn("x", k["data"]["metrics"])
+        self.assertIn("x", k["plot"]["metrics"])
         self._clean(stdout)
 
     def test_plot_series_array_duplicates(self):
         sys.stdout = stdout = StringIO()
         Kogu.plot("line", ["x", "x"])
         k = json.loads(stdout.getvalue())
-        self.assertEquals("plot", k["type"])
-        self.assertIn("x", k["data"]["metrics"])
-        self.assertEquals(1, len(k["data"]["metrics"]))
+        self.assertIn("x", k["plot"]["metrics"])
+        self.assertEquals(1, len(k["plot"]["metrics"]))
         self._clean(stdout)
 
     def test_plot_series_set(self):
         sys.stdout = stdout = StringIO()
         Kogu.plot("line", set(["x", "x", "y"]))
         k = json.loads(stdout.getvalue())
-        self.assertEquals("plot", k["type"])
-        self.assertIn("x", k["data"]["metrics"])
-        self.assertEquals(2, len(k["data"]["metrics"]))
+        self.assertIn("x", k["plot"]["metrics"])
+        self.assertEquals(2, len(k["plot"]["metrics"]))
         self._clean(stdout)
 
     def test_plot_series_invalid(self):
@@ -174,22 +163,20 @@ class KoguTests(unittest.TestCase):
         sys.stdout = stdout = StringIO()
         Kogu.plot("line", ['test'], "Test Plot", "Y-label")
         k = json.loads(stdout.getvalue())
-        self.assertEquals("plot", k["type"])
-        self.assertEquals("line", k["data"]["type"])
-        self.assertEquals("Y-label", k["data"]["y_label"])
-        self.assertEquals("Test Plot", k["data"]["name"])
-        self.assertIn("test", k["data"]["metrics"])
+        self.assertEquals("line", k["plot"]["type"])
+        self.assertEquals("Y-label", k["plot"]["y_label"])
+        self.assertEquals("Test Plot", k["plot"]["name"])
+        self.assertIn("test", k["plot"]["metrics"])
         self._clean(stdout)
 
     def test_plot_options_default(self):
         sys.stdout = stdout = StringIO()
         Kogu.plot("line", "test")
         k = json.loads(stdout.getvalue())
-        self.assertEquals("plot", k["type"])
-        self.assertEquals("line", k["data"]["type"])
-        self.assertEquals("Y", k["data"]["y_label"])
-        self.assertEquals("line", k["data"]["name"])
-        self.assertIn("test", k["data"]["metrics"])        
+        self.assertEquals("line", k["plot"]["type"])
+        self.assertEquals("Y", k["plot"]["y_label"])
+        self.assertEquals("line", k["plot"]["name"])
+        self.assertIn("test", k["plot"]["metrics"])        
         self._clean(stdout)
 
     def test_plot_options_empty(self):
@@ -202,8 +189,8 @@ class KoguTests(unittest.TestCase):
         sys.stdout = stdout = StringIO()
         Kogu.plot("line", ['test'], "Test 'Plot")
         k = json.loads(stdout.getvalue())
-        self.assertEquals("Test 'Plot", k["data"]["name"])
-        self.assertIn("test", k["data"]["metrics"])
+        self.assertEquals("Test 'Plot", k["plot"]["name"])
+        self.assertIn("test", k["plot"]["metrics"])
         self._clean(stdout)
 
     def test_upload(self):
@@ -211,8 +198,7 @@ class KoguTests(unittest.TestCase):
         with tempfile.NamedTemporaryFile() as fp:
             Kogu.upload(fp.name)
             k = json.loads(stdout.getvalue())
-            self.assertEquals("upload", k["type"])
-            self.assertEquals(fp.name, k["data"])
+            self.assertEquals(fp.name, k["upload"])
         self._clean(stdout)
 
     def test_upload_non_existing(self):
@@ -220,8 +206,7 @@ class KoguTests(unittest.TestCase):
         path = "/non/existing/file"
         Kogu.upload(path)
         k = json.loads(stdout.getvalue())
-        self.assertEquals("upload", k["type"])
-        self.assertEquals(path, k["data"])        
+        self.assertEquals(path, k["upload"])        
         self._clean(stdout)
 
     def test_upload_empty(self):
@@ -289,36 +274,32 @@ class KoguTests(unittest.TestCase):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({"A": "3"}, 3)
         k = json.loads(stdout.getvalue())
-        self.assertEquals("metric", k["type"])
-        self.assertEquals("3", k["data"]["metrics"]["A"])        
-        self.assertEquals(3, k["data"]["iteration"])        
+        self.assertEquals("3", k["metric"]["metrics"]["A"])        
+        self.assertEquals(3, k["metric"]["iteration"])        
         self._clean(stdout)
 
     def test_metrics_iteration_default(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({"A": "3"})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("metric", k["type"])
-        self.assertEquals("3", k["data"]["metrics"]["A"])        
-        self.assertEquals(-1, k["data"]["iteration"])                
+        self.assertEquals("3", k["metric"]["metrics"]["A"])        
+        self.assertEquals(-1, k["metric"]["iteration"])                
         self._clean(stdout)
 
     def _test_metrics_values_string(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({"A": "3", "B": "ok"})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("metric", k["type"])
-        self.assertEquals("3", k["data"]["metrics"]["A"])        
-        self.assertEquals("ok", k["data"]["metrics"]["B"])        
+        self.assertEquals("3", k["metric"]["metrics"]["A"])        
+        self.assertEquals("ok", k["metric"]["metrics"]["B"])        
         self._clean(stdout)
 
     def _test_metrics_values_int(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({"A": 3, "B": 6})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("metric", k["type"])
-        self.assertEquals(3, k["data"]["metrics"]["A"])        
-        self.assertEquals(6, k["data"]["metrics"]["B"])        
+        self.assertEquals(3, k["metric"]["metrics"]["A"])        
+        self.assertEquals(6, k["metric"]["metrics"]["B"])        
         self._clean(stdout)
 
     def test_metrics_values_float(self):
@@ -326,43 +307,38 @@ class KoguTests(unittest.TestCase):
         float_value = 1.0 / 3.0
         Kogu.metrics({"A": float_value})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("metric", k["type"])
-        self.assertEquals(float_value, k["data"]["metrics"]["A"])        
+        self.assertEquals(float_value, k["metric"]["metrics"]["A"])        
         self._clean(stdout)
 
     def test_metrics_values_bool(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({"b": True, "a": False})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("metric", k["type"])
-        self.assertTrue(k["data"]["metrics"]["b"])        
-        self.assertFalse(k["data"]["metrics"]["a"])        
+        self.assertTrue(k["metric"]["metrics"]["b"])        
+        self.assertFalse(k["metric"]["metrics"]["a"])        
         self._clean(stdout)
 
     def test_metrics_keys_strip_whitespace(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({" A ": 3})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("metric", k["type"])
-        self.assertEquals(3, k["data"]["metrics"]["A"])        
+        self.assertEquals(3, k["metric"]["metrics"]["A"])        
         self._clean(stdout)
 
     def test_metrics_keys_whitespace_duplicates(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({" B": 6, "B ": 9})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("metric", k["type"])
-        self.assertEquals(9, k["data"]["metrics"]["B"])
-        self.assertNotEquals(6, k["data"]["metrics"]["B"])    
+        self.assertEquals(9, k["metric"]["metrics"]["B"])
+        self.assertNotEquals(6, k["metric"]["metrics"]["B"])    
         self._clean(stdout)
 
     def _test_metrics_keys_case_sensitive(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({"b": 6, "B": 9})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("metric", k["type"])
-        self.assertEquals(9, k["data"]["metrics"]["B"])
-        self.assertEquals(6, k["data"]["metrics"]["b"])    
+        self.assertEquals(9, k["metric"]["metrics"]["B"])
+        self.assertEquals(6, k["metric"]["metrics"]["b"])    
         self._clean(stdout)
 
     def test_load_parameters(self):
@@ -422,10 +398,9 @@ class KoguTests(unittest.TestCase):
         self.assertEqual(third, 3)
 
         k = json.loads(stdout.getvalue())
-        self.assertEquals("parameters", k["type"])
-        self.assertEquals(10, k["data"]["epochs"])
-        self.assertEquals(22, k["data"]["spaces"])
-        self.assertEquals(3, k["data"]["third"])
+        self.assertEquals(10, k["parameters"]["epochs"])
+        self.assertEquals(22, k["parameters"]["spaces"])
+        self.assertEquals(3, k["parameters"]["third"])
 
         stdin.close()
         os.unlink(path)
@@ -442,18 +417,16 @@ class KoguTests(unittest.TestCase):
         sys.stdout = stdout = StringIO()
         Kogu.update_parameters({"A": "3", "B": "ok"})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("parameters", k["type"])
-        self.assertEquals("3", k["data"]["A"])
-        self.assertEquals("ok", k["data"]["B"])
+        self.assertEquals("3", k["parameters"]["A"])
+        self.assertEquals("ok", k["parameters"]["B"])
         self._clean(stdout)
 
     def test_update_parameters_values_int(self):
         sys.stdout = stdout = StringIO()
         Kogu.update_parameters({"A": 3, "B": 6})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("parameters", k["type"])
-        self.assertEquals(3, k["data"]["A"])
-        self.assertEquals(6, k["data"]["B"])
+        self.assertEquals(3, k["parameters"]["A"])
+        self.assertEquals(6, k["parameters"]["B"])
         self._clean(stdout)
 
     def test_update_parameters_values_float(self):
@@ -461,43 +434,38 @@ class KoguTests(unittest.TestCase):
         fl = 1.0 / 3.0
         Kogu.update_parameters({"A": fl})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("parameters", k["type"])
-        self.assertEquals(fl, k["data"]["A"])
+        self.assertEquals(fl, k["parameters"]["A"])
         self._clean(stdout)
 
     def test_update_parameters_values_bool(self):
         sys.stdout = stdout = StringIO()
         Kogu.update_parameters({"b": True, "a": False})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("parameters", k["type"])
-        self.assertTrue(k["data"]["b"])
-        self.assertFalse(k["data"]["a"])
+        self.assertTrue(k["parameters"]["b"])
+        self.assertFalse(k["parameters"]["a"])
         self._clean(stdout)
 
     def test_update_parameters_keys_strip_whitespace(self):
         sys.stdout = stdout = StringIO()
         Kogu.update_parameters({" A ": 3})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("parameters", k["type"])
-        self.assertEquals(3, k["data"]["A"])
+        self.assertEquals(3, k["parameters"]["A"])
         self._clean(stdout)
 
     def test_update_parameters_keys_whitespace_duplicates(self):
         sys.stdout = stdout = StringIO()
         Kogu.update_parameters({" B": 6, "B ": 9})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("parameters", k["type"])
-        self.assertEquals(9, k["data"]["B"])
-        self.assertNotEquals(6, k["data"]["B"])
+        self.assertEquals(9, k["parameters"]["B"])
+        self.assertNotEquals(6, k["parameters"]["B"])
         self._clean(stdout)
 
     def test_update_parameters_keys_case_sensitive(self):
         sys.stdout = stdout = StringIO()
         Kogu.update_parameters({"b": 6, "B": 9})
         k = json.loads(stdout.getvalue())
-        self.assertEquals("parameters", k["type"])
-        self.assertEquals(9, k["data"]["B"])
-        self.assertEquals(6, k["data"]["b"])
+        self.assertEquals(9, k["parameters"]["B"])
+        self.assertEquals(6, k["parameters"]["b"])
         self._clean(stdout)
 
     def test_update_parameters_keys_invalid(self):
@@ -513,15 +481,14 @@ class KoguTests(unittest.TestCase):
         reason = "some, reason)"
         Kogu.fail(reason)
         k = json.loads(stdout.getvalue())
-        self.assertEquals("fail", k["type"])
-        self.assertEquals(reason, k["data"])
+        self.assertEquals(reason, k["fail"])
         self._clean(stdout)
 
     def test_fail_reason_empty(self):
         sys.stdout = stdout = StringIO()
         Kogu.fail()
         k = json.loads(stdout.getvalue())
-        self.assertEquals("fail", k["type"])
+        self.assertEquals("", k["fail"])
         self._clean(stdout)
 
 if __name__ == '__main__':
