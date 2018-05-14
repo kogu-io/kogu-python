@@ -64,6 +64,14 @@ class Kogu(object):
             cls.update_parameters(dic, output)
 
     @classmethod
+    def _validate_dict(cls, dic):
+        if not all(cls._validate_metric_key(k) for k in dic):
+            raise KoguException('invalid parameter key in: %s' % dic)
+        
+        return {k.strip():v for (k,v) in dic.items()}
+        
+
+    @classmethod
     def update_parameters(cls, dic, output=False):
         """
         Creates Kogu specific parameter registration line to calling script stdout.
@@ -75,8 +83,8 @@ class Kogu(object):
         * **output** - Flag indicating whether to print the parameters also to stdout.
         """
         try:
-            buf = cls._key_value_string(dic)
-            cls._command("PARAM", buf.strip())
+            d = cls._validate_dict(dic)            
+            cls._json_dumps({"parameters": d})
 
         except KoguException as ex:
             cls._warn(ex)
@@ -105,9 +113,10 @@ class Kogu(object):
             if not isinstance(iteration, int):
                 raise KoguException('iteration should be a number')
 
-            buf = cls._key_value_string(dic).strip()
-            if buf:
-                cls._command("I%d" % iteration, buf)
+            d = cls._validate_dict(dic)
+
+            if len(d) > 0:
+                cls._json_dumps({"metric": {"iteration": iteration, "metrics": d}})
 
         except KoguException as ex:
             cls._warn(ex)
@@ -129,7 +138,7 @@ class Kogu(object):
             comment = '{}'.format(comment)
             comment = comment.replace('\n', ' ').replace('\r', '')
 
-            cls._command("COMMENT", comment)
+            cls._json_dumps({"comment": comment})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -145,7 +154,7 @@ class Kogu(object):
             if not name:
                 raise KoguException('name must be passed')
 
-            cls._command("NAME", name)
+            cls._json_dumps({"name": name})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -161,7 +170,7 @@ class Kogu(object):
             if not tag:
                 raise KoguException('tag must be passed')
 
-            cls._command("TAG", tag)
+            cls._json_dumps({"tag": tag})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -177,7 +186,7 @@ class Kogu(object):
             if not tag:
                 raise KoguException('tag must be passed')
 
-            cls._command("UNTAG", tag)
+            cls._json_dumps({"untag": tag})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -193,7 +202,7 @@ class Kogu(object):
         """
         try:
             cls._check_file(filename, should_exist=False)
-            cls._command("UPLOAD", filename)  # use given filename
+            cls._json_dumps({"upload": filename})
         except KoguException as ex:
             cls._warn(ex)
 
@@ -222,12 +231,14 @@ class Kogu(object):
             if not y_label:
                 y_label = "Y"
 
-            opt_metrics = cls._process_plot_metrics(series)
-
-            buf = "type=%s name=%s y_label=%s%s" % (
-                repr(plot_type), repr(name), repr(y_label), opt_metrics)
-
-            cls._command("PLOT", buf)
+            cls._json_dumps({
+                "plot": {
+                    "type": plot_type, 
+                    "name": name, 
+                    "y_label": y_label, 
+                    "metrics": cls._process_metrics(series),
+                    }
+                })
         except KoguException as ex:
             cls._warn(ex)
 
@@ -240,14 +251,25 @@ class Kogu(object):
         * **reason** - Optional text to use as a failure reason.
         """
         try:
-            cls._command("FAIL", reason)
+            reason = "" if reason is None else reason
+            cls._json_dumps({"fail": reason})
         except KoguException as ex:
             cls._warn(ex)
 
     @classmethod
-    def _command(cls, key, value):
-        cls._print("#{}: {}", key, value)
+    def _cleanupjson(cls, j):
+        for key, value in list(j.items()):
+            if value is None:
+                del j[key]
+            elif isinstance(value, dict):
+                cls._cleanupjson(value)
+        return j
 
+    @classmethod
+    def _json_dumps(cls, obj, cleanup=True):
+        o = cls._cleanupjson(obj) if cleanup else obj
+        cls._print("{}", json.dumps(o))
+    
     @classmethod
     def _warn(cls, ex):
         # TODO: It would be nice to have exception context logged i.e. calling method name
@@ -290,8 +312,7 @@ class Kogu(object):
         return False
 
     @classmethod
-    def _process_plot_metrics(cls, metrics):
-        opt_metrics = ""
+    def _process_metrics(cls, metrics):
         if metrics:
             if isinstance(metrics, set):
                 pass
@@ -305,25 +326,4 @@ class Kogu(object):
 
             metrics = set([x.strip() for x in metrics])
 
-            opt_metrics = " metrics=%s " % list(metrics)
-        return opt_metrics[:-1]
-
-    @classmethod
-    def _key_value_string(cls, dic):
-
-        if not isinstance(dic, dict):
-            raise KoguException('dictionary should be passed')
-
-        if not all(cls._validate_metric_key(k) for k in dic):
-            raise KoguException('invalid metrics key passed: %s' % dic)
-
-        res = {}
-        for k in dic:
-            res[k.strip()] = dic[k]
-
-        buf = ""
-        for k in res:
-            elem = "%s=%s " % (k, repr(res[k]))
-            buf += elem
-
-        return buf
+        return list(metrics)
