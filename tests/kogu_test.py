@@ -286,7 +286,7 @@ class KoguTests(unittest.TestCase):
         self.assertEquals(-1, k["metric"]["iteration"])                
         self._clean(stdout)
 
-    def _test_metrics_values_string(self):
+    def test_metrics_values_string(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({"A": "3", "B": "ok"})
         k = json.loads(stdout.getvalue())
@@ -294,7 +294,7 @@ class KoguTests(unittest.TestCase):
         self.assertEquals("ok", k["metric"]["metrics"]["B"])        
         self._clean(stdout)
 
-    def _test_metrics_values_int(self):
+    def test_metrics_values_int(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({"A": 3, "B": 6})
         k = json.loads(stdout.getvalue())
@@ -333,7 +333,7 @@ class KoguTests(unittest.TestCase):
         self.assertNotEquals(6, k["metric"]["metrics"]["B"])    
         self._clean(stdout)
 
-    def _test_metrics_keys_case_sensitive(self):
+    def test_metrics_keys_case_sensitive(self):
         sys.stdout = stdout = StringIO()
         Kogu.metrics({"b": 6, "B": 9})
         k = json.loads(stdout.getvalue())
