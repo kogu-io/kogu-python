@@ -193,12 +193,31 @@ class KoguTests(unittest.TestCase):
         self.assertIn("test", k["plot"]["metrics"])
         self._clean(stdout)
 
-    def test_upload(self):
+    def test_upload_default(self):
         sys.stdout = stdout = StringIO()
         with tempfile.NamedTemporaryFile() as fp:
             Kogu.upload(fp.name)
             k = json.loads(stdout.getvalue())
-            self.assertEquals(fp.name, k["upload"])
+            self.assertEquals(fp.name, k["upload"]["name"])
+            self.assertEquals(False, k["upload"]["append"])
+        self._clean(stdout)
+
+    def test_upload_append(self):
+        sys.stdout = stdout = StringIO()
+        with tempfile.NamedTemporaryFile() as fp:
+            Kogu.upload(fp.name, True)
+            k = json.loads(stdout.getvalue())
+            self.assertEquals(fp.name, k["upload"]["name"])
+            self.assertEquals(True, k["upload"]["append"])
+        self._clean(stdout)
+
+    def test_upload_create(self):
+        sys.stdout = stdout = StringIO()
+        with tempfile.NamedTemporaryFile() as fp:
+            Kogu.upload(fp.name, False)
+            k = json.loads(stdout.getvalue())
+            self.assertEquals(fp.name, k["upload"]["name"])
+            self.assertEquals(False, k["upload"]["append"])
         self._clean(stdout)
 
     def test_upload_non_existing(self):
@@ -206,7 +225,7 @@ class KoguTests(unittest.TestCase):
         path = "/non/existing/file"
         Kogu.upload(path)
         k = json.loads(stdout.getvalue())
-        self.assertEquals(path, k["upload"])        
+        self.assertEquals(path, k["upload"]["name"])        
         self._clean(stdout)
 
     def test_upload_empty(self):

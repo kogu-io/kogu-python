@@ -191,7 +191,7 @@ class Kogu(object):
             cls._warn(ex)
 
     @classmethod
-    def upload(cls, filename):
+    def upload(cls, filename, append=False):
         """
         Creates Kogu specific File upload line to calling script stdout. The line is
         created only if the referenced file exists.
@@ -202,7 +202,7 @@ class Kogu(object):
         """
         try:
             cls._check_file(filename, should_exist=False)
-            cls._json_dumps({"upload": filename})
+            cls._json_dumps({"upload": {"name": filename, "append": append}})
         except KoguException as ex:
             cls._warn(ex)
 
