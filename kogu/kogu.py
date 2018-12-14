@@ -199,6 +199,8 @@ class Kogu(object):
         ---------
         * **filename** - Relative or absolute path to the file. In case of relative path
         is passed it is evaluated from script root.
+        * **append** - If the file specified should be appended to the potentially existing file (True) 
+        in the server or whether a new has to be created (False, default)
         """
         try:
             cls._check_file(filename, should_exist=False)
